@@ -1,0 +1,51 @@
+Rate Limiting
+The rate limiter returns HTTP 429 — Too Many Requests when the request limit is reached.
+Database and Bootstrap User
+The application uses SQLite because it is easy to set up and suitable for example code.
+The test bootstrap settings are configured in ApiTestBase.cs:
+builder.UseSetting("BootstrapUser:Email", "owner@example.com");
+builder.UseSetting("BootstrapUser:DisplayName", "Team owner");
+builder.UseSetting("BootstrapUser:Password", "Test-password-123!");
+The API startup code in Program.cs reads these settings and creates the user if the email does not already exist.
+Before each test, the shared setup logs in as owner@example.com and creates a team named Team1. The account becomes the team’s Owner.
+Controllers and Services
+AuthController
+AuthController provides the login method used to authenticate users.
+NotesController and NoteService
+NotesController uses NoteService to manage notes.
+NoteService handles checking team membership, finding required notes, listing notes, creating notes, retrieving individual notes, updating notes, and deleting notes.
+It maps the Note database entity to a NoteResponse DTO for API responses.
+TeamsController and TeamService
+TeamsController uses TeamService to list the current user’s teams and create new teams. Each team has a Guid identifier.
+The controller requires authentication through the [Authorize] attribute. An authenticated user can create a team without already belonging to one. Creating the team automatically makes that user its Owner.
+UsersController
+UsersController is currently a placeholder with no actions.
+The User entity contains the ID, email, display name, password hash, team memberships, and created notes. Passwords are stored as hashes.
+IAppStore
+NoteService and TeamService use IAppStore, an interface that defines data access operations.
+AppStore implements that interface using Entity Framework Core and SQLite. This keeps database operations separate from the services’ application rules.
+API Integration Tests
+These tests send HTTP requests through the API and use isolated temporary SQLite databases.
+ApiTestBase
+ApiTestBase provides shared configuration, login helpers, and setup. The API startup seeds the bootstrap user, and the test setup creates Team1.
+Its Dispose() method shuts down the test API and deletes the temporary database after each test.
+AuthControllerTests
+These tests verify successful login, the returned user profile, and rejection of invalid credentials.
+DatabaseTests
+These tests verify membership primary keys and foreign keys using Team1.
+It will create multiple team members and it should error out if duplicates are created.
+NotesControllerTests
+These tests cover the complete note lifecycle: creating, listing, retrieving, updating, and deleting notes.
+They also check anonymous requests, invalid input, missing resources, shared-team access, and access restrictions for users outside the team.
+A future improvement would be to add individual tests for each note action while retaining the complete lifecycle test. For now, the generated lifecycle test remains.
+TeamsControllerTests
+These tests verify rejection of anonymous requests, visibility of newly created teams, rejection of invalid team names, and membership in multiple teams.
+Request and Response DTOs
+In BlueStaq.Application, Requests.cs defines these types as public sealed record:
+	• LoginRequest
+	• CreateTeamRequest
+	• SaveNoteRequest
+	• UserResponse
+	• TeamResponse
+	• NoteResponse
+These records are already data models used to transfer data into and out of the API. Records provide concise declarations, generated properties, and value-based equality. We can change them to classes later if our requirements call for different behavior.

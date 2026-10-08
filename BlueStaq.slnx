@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BlueStaq.Api/BlueStaq.Api.csproj" />
+    <Project Path="src/BlueStaq.Application/BlueStaq.Application.csproj" />
+    <Project Path="src/BlueStaq.Domain/BlueStaq.Domain.csproj" />
+    <Project Path="src/BlueStaq.Infrastructure/BlueStaq.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BlueStaq.Tests/BlueStaq.Tests.csproj" />
+  </Folder>
+</Solution>
+
